@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(supabase status:*)",
+      "Bash(npx supabase:*)",
+      "Bash(pip install:*)",
+      "Bash(uvicorn:*)",
+      "Bash(timeout 5 bash:*)",
+      "Bash(timeout /t 3:*)",
+      "Bash(curl:*)",
+      "Bash(findstr:*)",
+      "Bash(python:*)",
+      "Bash(pip show:*)",
+      "Bash(timeout /t 4)",
+      "Bash(pip uninstall:*)",
+      "Bash(timeout /t 5)",
+      "Bash(taskkill:*)",
+      "Bash(if exist venv rmdir /s /q venv)",
+      "Bash(venvScriptspip.exe install --upgrade pip)",
+      "Bash(.venvScriptspip.exe install --upgrade pip)",
+      "Bash(venvScriptsuvicorn.exe main:app --host 127.0.0.1 --port 8000)",
+      "Bash(venvScriptspython.exe -m uvicorn:*)",
+      "Bash(./venv/Scripts/python.exe -m uvicorn:*)",
+      "Bash(./venv/Scripts/python.exe --version)",
+      "Bash(./venv/Scripts/pip.exe list:*)",
+      "Bash(./venv/Scripts/pip.exe install:*)",
+      "Bash(npm audit:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(netstat:*)",
+      "Bash(find:*)",
+      "Bash(del c:UsersobadaDesktopIoTLinker-1supabasemigrations20241214000001_rename_spaces_to_channels.sql)",
+      "Bash(if exist channels rmdir /s /q channels)",
+      "Bash(move spaces channels)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

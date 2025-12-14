@@ -1,89 +1,83 @@
-'use client';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Bell } from 'lucide-react';
-import { useState, useEffect } from 'react';
+"use client";
 
-interface NavItem {
-  name: string;
-  href: string;
-  active: boolean;
-}
+import Link from "next/link";
+import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+import { Gauge, LayoutDashboard, Component, Users, HelpCircle } from "lucide-react";
 
 export default function Navbar() {
-  const [mounted, setMounted] = useState(false);
-  const [navItems, setNavItems] = useState<NavItem[]>([
-    { name: 'Channels', href: '/', active: true },
-    { name: 'Analytics', href: '/analytics', active: false },
-    { name: 'Devices', href: '/devices', active: false },
-    { name: 'Alerts', href: '/alerts', active: false },
-  ]);
-  
-  // Animation on mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  const handleNavItemClick = (clickedItemName: string) => {
-    setNavItems(prevItems => 
-      prevItems.map(item => ({
-        ...item,
-        active: item.name === clickedItemName
-      }))
-    );
-  };
+  const { isSignedIn, user } = useUser();
+  const pathname = usePathname();
+
+  const navItems = [
+    { label: "My Channels", href: "/channels", icon: LayoutDashboard },
+    { label: "Apps", href: "/apps", icon: Component },
+    { label: "Community", href: "/community", icon: Users },
+    { label: "Support", href: "/support", icon: HelpCircle },
+  ];
 
   return (
-    <nav className={`bg-white shadow-sm transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <nav className="sticky top-0 z-50 glass border-b border-slate-200/50 dark:border-slate-700/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-emerald-600 transition-all duration-300 hover:text-emerald-800 transform hover:scale-105">
-                IoTLinker
-              </span>
+            <div className="flex-shrink-0 flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="bg-indigo-600 text-white p-1.5 rounded-lg shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-200">
+                    <Gauge className="w-6 h-6" />
+                </div>
+                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-violet-500 dark:from-indigo-400 dark:to-violet-400 tracking-tight">
+                  IoTLinker
+                </span>
+              </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8 sm:items-center">
-              {navItems.map((item, index) => (
-                <Link key={item.name} href={item.href}>
-                  <span 
-                    onClick={() => handleNavItemClick(item.name)}
+            <div className="hidden sm:ml-8 sm:flex sm:space-x-1">
+              {navItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
                     className={`
-                      ${item.active 
-                        ? 'border-emerald-500 text-gray-900' 
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      } 
-                      inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium
-                      transition-all duration-300 ease-in-out
-                      hover:transform hover:translate-y-1
-                      ${mounted ? 'translate-y-0' : 'translate-y-4'}
-                      transition-delay-${index * 100}
+                      group inline-flex items-center px-4 pt-1 border-b-2 text-sm font-medium transition-all duration-200 ease-in-out h-full
+                      ${isActive 
+                        ? "border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30" 
+                        : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
+                      }
                     `}
-                    style={{ transitionDelay: `${index * 50}ms` }}
                   >
-                    {item.name}
-                  </span>
-                </Link>
-              ))}
+                    <Icon className={`w-4 h-4 mr-2 ${isActive ? "text-indigo-500 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`} />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
-          <div className="flex items-center">
-            <button className="bg-emerald-600 p-1 rounded-full text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 transform hover:rotate-12 hover:scale-110">
-              <Bell size={20} />
-            </button>
-            <div className="ml-3 relative">
-              <div>
-                <button className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-transform duration-300 transform hover:scale-110">
-                  <Image
-                    className="h-8 w-8 rounded-full"
-                    src="/placeholder.png"
-                    alt="User profile"
-                    width={32}
-                    height={32}
-                  />
-                </button>
+          <div className="flex items-center gap-4">
+            {isSignedIn ? (
+              <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+                 <div className="text-right hidden md:block">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">
+                        {user.fullName}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        {user.primaryEmailAddress?.emailAddress}
+                    </p>
+                 </div>
+                <UserButton afterSignOutUrl="/" appearance={{
+                    elements: {
+                        avatarBox: "w-9 h-9 border-2 border-indigo-100 dark:border-indigo-800"
+                    }
+                }}/>
               </div>
-            </div>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md shadow-indigo-500/20 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+                  Sign In
+                </button>
+              </SignInButton>
+            )}
           </div>
         </div>
       </div>

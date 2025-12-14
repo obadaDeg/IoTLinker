@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, use } from "react";
 import { ChannelDataChart } from "@/components/channels/ChannelDataChart";
 import { Button } from "@/components/ui/Button";
 import { ChannelInsights } from "@/components/channels/ChannelInsights";
 
 interface ChannelPageProps {
-  params: { channelId: string };
+  params: Promise<{ channelId: string }>;
 }
 
 export default function ChannelDashboard({ params }: ChannelPageProps) {
+  // Await params in Next.js 15
+  const resolvedParams = use(params);
   const [timeRange, setTimeRange] = useState("24h");
 
   const handleTimeRangeChange = (range: string) => {
@@ -18,7 +20,7 @@ export default function ChannelDashboard({ params }: ChannelPageProps) {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Channel Dashboard: {params.channelId}</h1>
+      <h1 className="text-2xl font-bold mb-4">Channel Dashboard: {resolvedParams.channelId}</h1>
 
       <div className="mb-4 flex space-x-2">
         {[
@@ -37,9 +39,9 @@ export default function ChannelDashboard({ params }: ChannelPageProps) {
         ))}
       </div>
 
-      <ChannelDataChart channelId={params.channelId} timeRange={timeRange} />
+      <ChannelDataChart channelId={resolvedParams.channelId} timeRange={timeRange} />
 
-      <ChannelInsights channelId={params.channelId} />
+      <ChannelInsights channelId={resolvedParams.channelId} />
     </div>
   );
 }

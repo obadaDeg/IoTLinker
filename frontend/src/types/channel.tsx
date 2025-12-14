@@ -9,5 +9,6 @@ export interface Channel {
   lastUpdate: string;
   description: string;
   tags: string[];
+  updated: string; // Added to match mock data
   totalUsers?: number;
 }

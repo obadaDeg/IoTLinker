@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
-import openai
+# import openai  # Temporarily disabled - install openai package if needed
 
 router = APIRouter(prefix="/api/v1/insights", tags=["insights"])
 
@@ -15,15 +15,9 @@ class InsightsResponse(BaseModel):
 @router.post("/generate", response_model=InsightsResponse)
 async def generate_insights(request: InsightsRequest):
     try:
-        # Simulate OpenAI API call for data summary
-        openai.api_key = "your-openai-api-key"
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Analyze the following data and provide a summary and anomalies: {request.data}",
-            max_tokens=150
-        )
-
-        summary = response.choices[0].text.strip()
+        # TODO: Implement OpenAI integration when openai package is installed
+        # For now, return placeholder response
+        summary = f"Analysis of {len(request.data)} data points for channel {request.channel_id}"
         anomalies = [point for point in request.data if point > 100]  # Example anomaly detection logic
 
         return InsightsResponse(summary=summary, anomalies=anomalies)

@@ -1,0 +1,667 @@
+{
+  "info": {
+    "name": "IoTLinker Enterprise API",
+    "description": "Comprehensive API test collection for IoTLinker Device Management Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "10000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "device_id",
+      "value": "30000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "device_key",
+      "value": "dev_2cd721db0076cf21f1e560e4b2c6bf98",
+      "type": "string"
+    },
+    {
+      "key": "device_type_id",
+      "value": "c814b779-4456-4bc1-a0fb-e354cc2d5d20",
+      "type": "string"
+    },
+    {
+      "key": "created_device_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "created_device_key",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has status field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData.status).to.eql('healthy');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Root Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData).to.have.property('version');",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData.version).to.eql('1.0.0');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Device Management",
+      "item": [
+        {
+          "name": "List All Devices",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has pagination fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('devices');",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "    pm.expect(jsonData).to.have.property('page');",
+                  "    pm.expect(jsonData).to.have.property('page_size');",
+                  "    pm.expect(jsonData).to.have.property('total_pages');",
+                  "});",
+                  "",
+                  "pm.test(\"Devices array is not empty\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.devices).to.be.an('array');",
+                  "    pm.expect(jsonData.devices.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/?tenant_id={{tenant_id}}&page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", ""],
+              "query": [
+                {
+                  "key": "tenant_id",
+                  "value": "{{tenant_id}}"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Device has all required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "    pm.expect(jsonData).to.have.property('tenant_id');",
+                  "    pm.expect(jsonData).to.have.property('device_key');",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData).to.have.property('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{device_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{device_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has credentials\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('device_id');",
+                  "    pm.expect(jsonData).to.have.property('device_key');",
+                  "    pm.expect(jsonData).to.have.property('device_secret');",
+                  "    pm.expect(jsonData).to.have.property('mqtt_endpoint');",
+                  "    ",
+                  "    // Save for later tests",
+                  "    pm.collectionVariables.set('created_device_id', jsonData.device_id);",
+                  "    pm.collectionVariables.set('created_device_key', jsonData.device_key);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test Device\",\n  \"description\": \"Created via Postman for testing\",\n  \"tenant_id\": \"{{tenant_id}}\",\n  \"device_type_id\": \"{{device_type_id}}\",\n  \"location\": {\n    \"latitude\": 40.7580,\n    \"longitude\": -73.9855,\n    \"address\": \"Times Square, NYC\"\n  },\n  \"metadata\": {\n    \"test\": true,\n    \"created_by\": \"postman\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Device was updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.name).to.include('Updated');",
+                  "    pm.expect(jsonData.status).to.eql('maintenance');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test Device - Updated\",\n  \"description\": \"Updated description\",\n  \"status\": \"maintenance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{created_device_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{created_device_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{created_device_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{created_device_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Devices by Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"All devices have online status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    jsonData.devices.forEach(function(device) {",
+                  "        pm.expect(device.status).to.eql('online');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/?tenant_id={{tenant_id}}&status=online&page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", ""],
+              "query": [
+                {
+                  "key": "tenant_id",
+                  "value": "{{tenant_id}}"
+                },
+                {
+                  "key": "status",
+                  "value": "online"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Devices by Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Results contain search term\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.devices.length > 0) {",
+                  "        pm.expect(jsonData.devices[0].name.toLowerCase()).to.include('temperature');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/?tenant_id={{tenant_id}}&search=Temperature&page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", ""],
+              "query": [
+                {
+                  "key": "tenant_id",
+                  "value": "{{tenant_id}}"
+                },
+                {
+                  "key": "search",
+                  "value": "Temperature"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Device Types",
+      "item": [
+        {
+          "name": "List Device Types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns array of device types\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Device type has required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData[0]).to.have.property('id');",
+                  "    pm.expect(jsonData[0]).to.have.property('name');",
+                  "    pm.expect(jsonData[0]).to.have.property('sensor_schema');",
+                  "    pm.expect(jsonData[0]).to.have.property('default_configuration');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/types/list",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "types", "list"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Device Data",
+      "item": [
+        {
+          "name": "Ingest Device Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"device_key\": \"{{device_key}}\",\n  \"data\": [\n    {\n      \"metric_name\": \"temperature\",\n      \"value\": 23.5,\n      \"unit\": \"celsius\",\n      \"quality_score\": 100\n    },\n    {\n      \"metric_name\": \"humidity\",\n      \"value\": 68.0,\n      \"unit\": \"percent\",\n      \"quality_score\": 98\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{device_id}}/data",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{device_id}}", "data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query Device Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns array of data points\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Data points have required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('device_id');",
+                  "        pm.expect(jsonData[0]).to.have.property('metric_name');",
+                  "        pm.expect(jsonData[0]).to.have.property('value');",
+                  "        pm.expect(jsonData[0]).to.have.property('time');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{device_id}}/data?metric_name=temperature&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{device_id}}", "data"],
+              "query": [
+                {
+                  "key": "metric_name",
+                  "value": "temperature"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Error Cases",
+      "item": [
+        {
+          "name": "Get Non-Existent Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/99999999-9999-9999-9999-999999999999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "99999999-9999-9999-9999-999999999999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Device - Missing Required Field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Missing name field\",\n  \"tenant_id\": \"{{tenant_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ingest Data - Invalid Device Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"device_key\": \"invalid_key_12345\",\n  \"data\": [\n    {\n      \"metric_name\": \"temperature\",\n      \"value\": 22.5,\n      \"unit\": \"celsius\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/devices/{{device_id}}/data",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "devices", "{{device_id}}", "data"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

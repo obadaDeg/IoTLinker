@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { AlertConfigForm } from "@/components/alerts/AlertConfigForm";
 
 interface Alert {
@@ -10,7 +10,8 @@ interface Alert {
   isActive: boolean;
 }
 
-export default function AlertsPage({ params }: { params: { channelId: string } }) {
+export default function AlertsPage({ params }: { params: Promise<{ channelId: string }> }) {
+  const resolvedParams = use(params);
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   const handleAddAlert = (newAlert: Alert) => {
@@ -20,7 +21,7 @@ export default function AlertsPage({ params }: { params: { channelId: string } }
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Alerts for Channel {params.channelId}</h1>
+      <h1 className="text-2xl font-bold mb-4">Manage Alerts for Channel {resolvedParams.channelId}</h1>
 
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-2">Add New Alert</h2>
