@@ -3,8 +3,10 @@ Device Management API Endpoints
 CRUD operations for IoT devices
 """
 
-from fastapi import APIRouter, HTTPException, Query, status
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Query, status, BackgroundTasks
+from typing import List, Optional, Dict, Any
+import httpx
+import json
 from uuid import UUID
 from datetime import datetime, timedelta
 
@@ -52,9 +54,9 @@ async def create_device(device: DeviceCreate):
             "description": device.description,
             "device_type_id": str(device.device_type_id) if device.device_type_id else None,
             "channel_id": str(device.channel_id) if device.channel_id else None,
-            "location": device.location.model_dump() if device.location else None,
-            "metadata": device.metadata or {},
-            "configuration": device.configuration or {},
+            "location": json.dumps(device.location.model_dump()) if device.location else None,
+            "metadata": json.dumps(device.metadata or {}),
+            "configuration": json.dumps(device.configuration or {}),
             "firmware_version": device.firmware_version,
             "status": "offline"  # New devices start as offline
         }
@@ -255,8 +257,22 @@ async def delete_device(device_id: UUID):
 # DEVICE DATA ENDPOINTS
 # =====================================================
 
+async def trigger_n8n_webhook(webhook_url: str, payload: Dict[str, Any]):
+    """
+    Background task to trigger n8n webhook
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(webhook_url, json=payload, timeout=5.0)
+    except Exception as e:
+        print(f"Failed to trigger n8n webhook: {str(e)}")
+
 @router.post("/{device_id}/data", status_code=status.HTTP_201_CREATED)
-async def ingest_device_data(device_id: UUID, data_batch: DeviceDataBatch):
+async def ingest_device_data(
+    device_id: UUID, 
+    data_batch: DeviceDataBatch, 
+    background_tasks: BackgroundTasks
+):
     """
     Ingest device sensor data
 
@@ -271,7 +287,7 @@ async def ingest_device_data(device_id: UUID, data_batch: DeviceDataBatch):
         # Verify device exists and authenticate with device_key
         supabase = get_supabase()
 
-        device_response = supabase.table("devices").select("id, tenant_id, device_key").eq("id", str(device_id)).execute()
+        device_response = supabase.table("devices").select("id, tenant_id, device_key, channel_id").eq("id", str(device_id)).execute()
 
         if not device_response.data:
             raise HTTPException(
@@ -280,6 +296,22 @@ async def ingest_device_data(device_id: UUID, data_batch: DeviceDataBatch):
             )
 
         device = device_response.data[0]
+
+        # Check for n8n Webhook in Channel Metadata
+        if device.get("channel_id"):
+            channel_response = supabase.table("channels").select("metadata").eq("id", device["channel_id"]).execute()
+            if channel_response.data:
+                metadata = channel_response.data[0].get("metadata") or {}
+                webhook_url = metadata.get("n8n_webhook")
+                
+                if webhook_url:
+                    # Prepare payload for n8n
+                    payload = {
+                        "device_id": str(device_id),
+                        "timestamp": (data_batch.timestamp or datetime.utcnow()).isoformat(),
+                        "data": [p.model_dump() for p in data_batch.data]
+                    }
+                    background_tasks.add_task(trigger_n8n_webhook, webhook_url, payload)
 
         # Authenticate device
         if device["device_key"] != data_batch.device_key:

@@ -108,7 +108,18 @@ async def get_channel(
                 detail=f"Channel {channel_id} not found or does not belong to tenant"
             )
 
-        return Channel(**dict(channel))
+        return parse_channel_record(channel)
+
+
+def parse_channel_record(record) -> Channel:
+    """Helper to parse DB record into Channel model"""
+    data = dict(record)
+    if isinstance(data.get('metadata'), str):
+        try:
+            data['metadata'] = json.loads(data['metadata'])
+        except:
+            data['metadata'] = {}
+    return Channel(**data)
 
 
 @router.post("/", response_model=Channel, status_code=201)
@@ -116,40 +127,50 @@ async def create_channel(channel: ChannelCreate):
     """
     Create a new channel
     """
-    async with get_db_connection() as conn:
-        # Check for duplicate channel name in tenant
-        check_query = """
-            SELECT id FROM channels
-            WHERE tenant_id = $1 AND name = $2
-        """
-        existing = await conn.fetchval(check_query, str(channel.tenant_id), channel.name)
+    try:
+        async with get_db_connection() as conn:
+            # Check for duplicate channel name in tenant
+            check_query = """
+                SELECT id FROM channels
+                WHERE tenant_id = $1 AND name = $2
+            """
+            existing = await conn.fetchval(check_query, str(channel.tenant_id), channel.name)
 
-        if existing:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Channel with name '{channel.name}' already exists in this tenant"
+            if existing:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Channel with name '{channel.name}' already exists in this tenant"
+                )
+
+            # Insert new channel
+            insert_query = """
+                INSERT INTO channels (
+                    tenant_id, name, description, icon, color, metadata
+                )
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING *
+            """
+
+            new_channel = await conn.fetchrow(
+                insert_query,
+                str(channel.tenant_id),
+                channel.name,
+                channel.description,
+                channel.icon,
+                channel.color,
+                json.dumps(channel.metadata or {})
             )
 
-        # Insert new channel
-        insert_query = """
-            INSERT INTO channels (
-                tenant_id, name, description, icon, color, metadata
-            )
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *
-        """
-
-        new_channel = await conn.fetchrow(
-            insert_query,
-            str(channel.tenant_id),
-            channel.name,
-            channel.description,
-            channel.icon,
-            channel.color,
-            channel.metadata or {}
+            return parse_channel_record(new_channel)
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"CRITICAL API ERROR: {str(e)}"
         )
-
-        return Channel(**dict(new_channel))
 
 
 @router.put("/{channel_id}", response_model=Channel)
@@ -199,7 +220,7 @@ async def update_channel(
 
         if channel_update.metadata is not None:
             updates.append(f"metadata = ${param_count}")
-            params.append(channel_update.metadata)
+            params.append(json.dumps(channel_update.metadata))
             param_count += 1
 
         if not updates:
@@ -218,7 +239,7 @@ async def update_channel(
 
         updated_channel = await conn.fetchrow(query, *params)
 
-        return Channel(**dict(updated_channel))
+        return parse_channel_record(updated_channel)
 
 
 @router.delete("/{channel_id}", status_code=204)

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { Gauge, LayoutDashboard, Component, Users, HelpCircle } from "lucide-react";
+import { Gauge, LayoutDashboard, Zap, Users, HelpCircle } from "lucide-react";
 
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
@@ -11,7 +11,7 @@ export default function Navbar() {
 
   const navItems = [
     { label: "My Channels", href: "/channels", icon: LayoutDashboard },
-    { label: "Apps", href: "/apps", icon: Component },
+    { label: "Automation", href: "/dashboard/automation", icon: Zap },
     { label: "Community", href: "/community", icon: Users },
     { label: "Support", href: "/support", icon: HelpCircle },
   ];
