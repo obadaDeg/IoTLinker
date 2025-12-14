@@ -317,7 +317,7 @@ In Studio → **Database** → **Tables**, you'll see:
 
 **Multi-Tenancy (4 tables)**
 - `organizations` - Top-level org entities
-- `tenants` - Isolated workspaces
+- `tenants` - Isolated tenant instances
 - `users` - User accounts
 - `user_sessions` - Active sessions
 

@@ -39,7 +39,7 @@ Located in `supabase/migrations/`:
 
 #### **Multi-Tenancy**
 - ✅ `organizations` - Top-level entities
-- ✅ `tenants` - Isolated workspaces with RLS
+- ✅ `tenants` - Isolated tenant instances with RLS
 - ✅ `users` - Synced with Clerk authentication
 
 #### **RBAC (Access Control)**

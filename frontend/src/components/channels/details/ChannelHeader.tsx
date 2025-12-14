@@ -1,7 +1,7 @@
 "use client";
 
 import { Channel } from "@/types/channel";
-import { Lock, Globe, Hash, User, Calendar } from "lucide-react";
+import { Hash, User, Calendar } from "lucide-react";
 import Link from "next/link";
 
 interface ChannelHeaderProps {
@@ -30,19 +30,11 @@ export function ChannelHeader({ channel }: ChannelHeaderProps) {
                 <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 dark:text-slate-400 pt-2">
                     <span className="flex items-center gap-1.5">
                         <User className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                        By <span className="font-medium text-slate-700 dark:text-slate-300">{channel.author}</span>
-                    </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                       channel.access === "Public" 
-                       ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" 
-                       : "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
-                    }`}>
-                      {channel.access === "Public" ? <Globe className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
-                      {channel.access}
+                        By <span className="font-medium text-slate-700 dark:text-slate-300">{channel.created_by || 'Unknown'}</span>
                     </span>
                     <span className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                        Created: {channel.created}
+                        Created: {channel.created_at ? channel.created_at.split('T')[0] : 'Unknown'}
                     </span>
                 </div>
             </div>

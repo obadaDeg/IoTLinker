@@ -112,7 +112,7 @@ export interface DeviceFilters {
   tenant_id: string;
   status?: DeviceStatus;
   device_type_id?: string;
-  space_id?: string; // Filter by space
+  channel_id?: string; // Filter by channel
   search?: string;
   page?: number;
   page_size?: number;

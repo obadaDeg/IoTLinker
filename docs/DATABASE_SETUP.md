@@ -117,7 +117,7 @@ cp .env.example .env
 
 #### **Multi-Tenancy**
 - `organizations` - Top-level organization entities
-- `tenants` - Isolated tenant workspaces
+- `tenants` - Isolated tenant instances with multi-tenancy support
 - `users` - User accounts (synced with Clerk)
 
 #### **RBAC (Role-Based Access Control)**

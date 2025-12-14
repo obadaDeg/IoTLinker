@@ -8,16 +8,19 @@ async function getChannel(id: string): Promise<Channel> {
 
   return {
     id: id,
+    tenant_id: "10000000-0000-0000-0000-000000000001",
     name: "Weather Station A",
-    author: "User",
-    access: "Private",
-    created: "2023-12-01",
-    updated: "2023-12-10",
-    entries: 1540,
-    fields: 4,
-    lastUpdate: "2 mins ago",
+    created_by: "user-123",
+    created_at: "2023-12-01T10:00:00Z",
+    updated_at: "2023-12-10T12:00:00Z",
     description: "Monitoring temp and humidity in garden",
-    tags: ["weather", "outdoor"],
+    metadata: {
+        entries: 1540,
+        fields: 4,
+        lastUpdate: "2 mins ago",
+        tags: ["weather", "outdoor"],
+        access: "Private"
+    },
   };
 }
 

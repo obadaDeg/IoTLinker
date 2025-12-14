@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDevices } from '@/components/hooks/useDevices';
-import type { Device } from '@/types/device';
+import type { Device, DeviceStatus } from '@/types/device';
 
 const TENANT_ID = '10000000-0000-0000-0000-000000000001';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<DeviceStatus | ''>('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const { devices, total, loading, error } = useDevices({
@@ -42,10 +42,10 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push('/spaces')}
+                onClick={() => router.push('/channels')}
                 className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium"
               >
-                📦 Spaces
+                📦 Channels
               </button>
               <button
                 onClick={() => router.push('/api-test')}
@@ -118,7 +118,7 @@ export default function DashboardPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => {
-                  setStatusFilter(e.target.value);
+                  setStatusFilter(e.target.value as DeviceStatus | '');
                   setCurrentPage(1);
                 }}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
